@@ -1,0 +1,77 @@
+#!/bin/sh
+# /etc/init.d/test_daemon
+### BEGIN INIT INFO
+# Provides:          test_daemon
+# Required-Start:    $local_fs 
+# Should-Start:      
+# Required-Stop:     
+# Should-Stop:      
+# Default-Start:     2 3 5
+# Default-Stop:      0 1 6
+# Short-Description: test daemon providing test
+# Description:       test 
+### END INIT INFO
+
+# Note on runlevels:
+# 0 - halt/poweroff                     6 - reboot
+# 1 - single user                       2 - multiuser without network exported
+# 3 - multiuser w/ network (text mode)  5 - multiuser w/ network and X11 (xdm)
+# 
+
+# Check for missing binaries (stale symlinks should not happen)
+# Change to the path where you place the test_daemon
+TEST_BIN=/tmp/lx/test_daemon
+test -x $TEST_BIN || { echo "$TEST_BIN not installed";
+        if [ "$1" = "stop" ]; then exit 0;
+        else exit 5; fi; }
+
+. /etc/rc.status
+
+# Reset status of this service
+rc_reset
+
+case "$1" in
+    start)
+        echo -n "Starting test_daemon "
+        ## Start daemon with startproc(8). If this fails
+        ## the return value is set appropriately by startproc.
+        /sbin/startproc $TEST_BIN
+
+        # Remember status and be verbose
+        rc_status -v
+        ;;
+    stop)
+        echo -n "Shutting down test_daemon "
+        ## Stop daemon with killproc(8) and if this fails
+        ## killproc sets the return value according to LSB.
+        /sbin/killproc -TERM $TEST_BIN
+
+        # Remember status and be verbose
+        rc_status -v
+        ;;
+   status)
+        echo -n "Checking for service test_daemon "
+        ## Check status with checkproc(8), if process is running
+        ## checkproc will return with exit status 0.
+
+        # Return value is slightly different for the status command:
+        # 0 - service up and running
+        # 1 - service dead, but /var/run/  pid  file exists
+        # 2 - service dead, but /var/lock/ lock file exists
+        # 3 - service not running (unused)
+        # 4 - service status unknown :-(
+        # 5--199 reserved (5--99 LSB, 100--149 distro, 150--199 appl.)
+
+        # NOTE: checkproc returns LSB compliant status values.
+        /sbin/checkproc $TEST_BIN
+        # NOTE: rc_status knows that we called this init script with
+        # "status" option and adapts its messages accordingly.
+        rc_status -v
+        ;;
+       *)
+        echo "Usage: $0 {start|stop|status}"
+        exit 1
+        ;;
+esac
+rc_exit
+            
