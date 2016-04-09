@@ -11,3 +11,5 @@ gcc test.c init.o -o test_init
 gcc test.c init.o -D DAEMON -o test_daemon
 
 Both test_init and test_daemon write a message to /tmp/test.log every 10 seconds.
+
+http://www.cnblogs.com/bangerlee/archive/2012/03/30/2412652.html
